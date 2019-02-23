@@ -69,12 +69,12 @@ space 525
 pulse 549
 ```
 
-If everything is ok, execute following and follow the commands in the script
+If everything is ok, execute following and follow the commands in the script. Adjust name of the file should you wish.
 ```sh
-sudo irrecord --driver default --device /dev/lirc0 ~/lircd.conf
+sudo irrecord --driver default --device /dev/lirc0 ~/pioneer.lircd.conf
 ```
 
-If you entered name of your remote let say `pioneer` you will end it up with file `~/pioneer.lircd.conf`.
+You will end it up with file `~/pioneer.lircd.conf`.
 
 ```
 begin remote
@@ -106,7 +106,7 @@ end remote
 
 Let's move this config over to LIRC daemon.
 ```sh
-sudo cp ~/pioneer.lircd.conf /etc/lirc/lircd.conf.d/
+sudo mv ~/pioneer.lircd.conf /etc/lirc/lircd.conf.d/
 sudo systemctl start lircd.service
 ```
 
