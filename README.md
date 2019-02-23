@@ -1,6 +1,4 @@
 # LIRC watcher
-![Docker Build Status](https://img.shields.io/docker/build/pilotak/lirc-watcher.svg) ![Docker Automated build](https://img.shields.io/docker/automated/pilotak/lirc-watcher.svg)
-
 Docker container that listens to LIRC daemon (running on the host) and sends received codes over MQTT with added benefit of short and long putton press.
 
 ## Install
