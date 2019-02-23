@@ -125,7 +125,7 @@ services:
     restart: always
     image: pilotak/lirc-watcher
     environment:
-      - MQTT_HOST=192.168.0.10
+      - MQTT_BROKER=192.168.0.10
       - MQTT_USER=admin
       - MQTT_PASSWORD=my-secret-pw
     volumes:
