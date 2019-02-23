@@ -1,4 +1,6 @@
 # LIRC watcher
+![Docker Build Status](https://img.shields.io/docker/build/pilotak/lirc-watcher.svg) ![Docker Automated build](https://img.shields.io/docker/automated/pilotak/lirc-watcher.svg)
+
 Docker container that listens to LIRC daemon (running on the host) and sends received codes over MQTT with added benefit of short and long putton press.
 
 ## Install
@@ -16,13 +18,13 @@ sudo echo dtoverlay=lirc-rpi,gpio_in_pin=20,gpio_out_pin=16,gpio_in_pull=up >> /
 ```
 
 Find and alter following lines in `/etc/lirc/lirc_options.conf`
-```toml
+```ApacheConf
 driver = default
 device = /dev/lirc0
 ```
 
 Paste following code into file `/etc/lirc/hardware.conf`
-```toml
+```ApacheConf
 ########################################################
 # /etc/lirc/hardware.conf
 LIRCD_ARGS="--uinput --listen"
