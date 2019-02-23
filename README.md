@@ -4,25 +4,25 @@ Docker container that listens to LIRC daemon (running on the host) and sends rec
 ## Install
 LIRC must be install on the host system. Following example is for Raspberry Pi 3 but should work on other platforms with adjustments too.
 
-```console
+```sh
 sudo apt-get install lirc
 ```
 
 ### Enable LIRC & specify pins
-```console
+```sh
 sudo echo "lirc_dev" >> /etc/modules
 sudo echo lirc_rpi gpio_in_pin=20 gpio_out_pin=16 >> /etc/modules
 sudo echo dtoverlay=lirc-rpi,gpio_in_pin=20,gpio_out_pin=16,gpio_in_pull=up >> /boot/config.txt
 ```
 
 Find and alter following lines in `/etc/lirc/lirc_options.conf`
-```ApacheConf
+```toml
 driver = default
 device = /dev/lirc0
 ```
 
 Paste following code into file `/etc/lirc/hardware.conf`
-```ApacheConf
+```toml
 ########################################################
 # /etc/lirc/hardware.conf
 LIRCD_ARGS="--uinput --listen"
@@ -37,19 +37,19 @@ LIRCMD_CONF=""
 ```
 
 Reboot to apply changes
-```console
+```sh
 sudo reboot
 ```
 
 ### Enable LIRC service
-```console
+```sh
 sudo systemctl enable lircd.service && sudo systemctl start lircd.service
 sudo systemctl status lircd.service
 ```
 
 ### Recording codes
 Test receiver
-```console
+```sh
 sudo systemctl stop lircd.service
 mode2 --driver default --device /dev/lirc0
 ```
@@ -70,7 +70,7 @@ pulse 549
 ```
 
 If everything is ok, execute following and follow the commands in the script
-```console
+```sh
 sudo irrecord --driver default --device /dev/lirc0 ~/lircd.conf
 ```
 
@@ -105,13 +105,13 @@ end remote
 ```
 
 Let's move this config over to LIRC daemon.
-```console
+```sh
 sudo cp ~/pioneer.lircd.conf /etc/lirc/lircd.conf.d/
 sudo systemctl start lircd.service
 ```
 
 Test receiver again, if you see the names of your keys when button pressed, that's a win-win.
-```console
+```sh
 irw
 ```
 
@@ -133,7 +133,8 @@ services:
 ```
 
 ### Environmental variables
-Bellow are all availabe variables
+Bellow are all available variables
+
 | Variable | Description | Default value |
 | --- | --- | :---:|
 | `LONG_PRESS` | How many messages is received to be considered as long press | 12 |
