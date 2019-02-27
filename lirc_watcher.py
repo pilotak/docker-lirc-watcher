@@ -26,11 +26,18 @@ MQTT_ID = os.getenv('MQTT_ID', 'lirc-watcher')
 MQTT_PREFIX = os.getenv('MQTT_PREFIX', 'lirc')
 
 
+def on_message(client, userdata, message):
+    print("Message received: %s on topic: %s " %
+          (str(message.payload.decode("utf-8")), message.topic))
+
+
 def init_mqtt():
     global mqtt
     mqtt = paho.Client(MQTT_ID)
+    mqtt.on_message = on_message  # attach function to callback
     mqtt.username_pw_set(MQTT_USER, MQTT_PASSWORD)
     mqtt.connect(MQTT_BROKER, MQTT_PORT)
+    mqtt.loop_start()
 
 
 def init_lirc():
@@ -65,7 +72,7 @@ if __name__ == '__main__':
         else:
             if new_data:
                 new_data = new_data.decode("utf-8")
-                # print("new_data: %s" % new_data)
+                # print("new_data: ", new_data)
                 counter_str = new_data.split()
 
                 """
@@ -76,7 +83,7 @@ if __name__ == '__main__':
 
                 prev_data = new_data
                 last_data_timestamp = datetime.now().microsecond
-                # print("start time: %i" % last_data_timestamp)
+                # print("start time: ", last_data_timestamp)
 
         if priority_data is not None or \
            (last_data_timestamp > 0 and prev_data is not None and
