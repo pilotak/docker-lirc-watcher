@@ -138,7 +138,7 @@ Bellow are all available variables
 | Variable | Description | Default value |
 | --- | --- | :---:|
 | `LONG_PRESS` | How many messages is received to be considered as long press | 12 |
-| `READ_TIMEOUT` | How long to wait to process new data *in us* | 200000 | 
+| `READ_TIMEOUT` | How long to wait to process new data *in s* | 0.2 | 
 | `PAYLOAD_LONG_PRESS` | Payload on long press | "long" | 
 | `PAYLOAD_SHORT_CLICK` | Payload on short press | "short" | 
 | `MQTT_BROKER` | Broker address | localhost | 
