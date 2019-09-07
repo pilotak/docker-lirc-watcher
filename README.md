@@ -1,18 +1,20 @@
 # LIRC watcher
+![Docker Cloud Automated build](https://img.shields.io/docker/cloud/automated/pilotak/lirc-watcher.svg) ![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/pilotak/lirc-watcher.svg)
+
 Docker container that listens to LIRC daemon (running on the host) and sends received codes over MQTT with added benefit of short and long putton press.
 
 ## Install
 LIRC must be install on the host system. Following example is for Raspberry Pi 3 but should work on other platforms with adjustments too.
 
 ```sh
-sudo apt-get install lirc
+sudo apt install lirc
 ```
 
 ### Enable LIRC & specify pins
 ```sh
-sudo echo "lirc_dev" >> /etc/modules
-sudo echo lirc_rpi gpio_in_pin=20 gpio_out_pin=16 >> /etc/modules
-sudo echo dtoverlay=lirc-rpi,gpio_in_pin=20,gpio_out_pin=16,gpio_in_pull=up >> /boot/config.txt
+# sudo echo "lirc_dev" >> /etc/modules
+# sudo echo lirc_rpi gpio_in_pin=20 gpio_out_pin=16 >> /etc/modules
+sudo echo dtoverlay=gpio-ir,gpio_pin=20,gpio_pull=up >> /boot/config.txt
 ```
 
 Find and alter following lines in `/etc/lirc/lirc_options.conf`
@@ -24,7 +26,6 @@ device = /dev/lirc0
 Paste following code into file `/etc/lirc/hardware.conf`
 ```ApacheConf
 ########################################################
-# /etc/lirc/hardware.conf
 LIRCD_ARGS="--uinput --listen"
 LOAD_MODULES=true
 DRIVER="default"
