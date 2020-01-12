@@ -1,16 +1,66 @@
 # LIRC watcher
-![Docker Cloud Automated build](https://img.shields.io/docker/cloud/automated/pilotak/lirc-watcher.svg) ![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/pilotak/lirc-watcher.svg)
 
 Docker container that listens to LIRC daemon (running on the host) and sends received codes over MQTT with added benefit of short and long putton press.
 
-## Install
-LIRC must be install on the host system. Following example is for Raspberry Pi 3 but should work on other platforms with adjustments too.
+LIRC must be install on the host system. Following example is for Raspberry Pi 4 but should work on other platforms with adjustments too.
 
+## Install on Debian Buster
+LIRC on Buster have to be patched in order to work, so the installation is more complex.
+
+If you already tried to install `lirc`, remove it first
+```sh
+sudo apt remove lirc liblirc0 liblirc-client0
+```
+
+Install patched LIRC
+```sh
+sudo su -c "grep '^deb ' /etc/apt/sources.list | sed 's/^deb/deb-src/g' > /etc/apt/sources.list.d/deb-src.list"
+sudo apt update
+sudo apt install -y devscripts dh-exec doxygen expect libasound2-dev libftdi1-dev libsystemd-dev libudev-dev libusb-1.0-0-dev libusb-dev man2html-base portaudio19-dev socat xsltproc python3-yaml dh-python libx11-dev python3-dev python3-setuptools
+mkdir build
+cd build
+apt source lirc
+wget https://raw.githubusercontent.com/neuralassembly/raspi/master/lirc-gpio-ir-0.10.patch
+patch -p0 -i lirc-gpio-ir-0.10.patch
+cd lirc-0.10.1
+debuild -uc -us -b
+cd ..
+sudo apt install -y --allow-downgrades ./liblirc0_0.10.1-5.2_armhf.deb ./liblircclient0_0.10.1-5.2_armhf.deb ./lirc_0.10.1-5.2_armhf.deb
+```
+
+The last command will fail, but it will create important files
+```sh
+sudo cp /etc/lirc/lirc_options.conf.dist /etc/lirc/lirc_options.conf
+sudo cp /etc/lirc/lircd.conf.dist /etc/lirc/lircd.conf
+```
+
+Alter following file
+```sh
+sudo nano /etc/lirc/lirc_options.conf
+```
+```
+driver = default
+device = /dev/lirc0
+```
+
+
+Specify pin you have a IR receiver connected to
+```sh
+sudo echo dtoverlay=gpio-ir,gpio_pin=17 >> /boot/config.txt
+```
+
+Reboot to apply changes
+```sh
+sudo reboot
+```
+
+
+## Install on Debian Stretch
 ```sh
 sudo apt install lirc
 ```
 
-### Enable LIRC & specify pins
+Enable LIRC & specify pins
 ```sh
 # sudo echo "lirc_dev" >> /etc/modules
 # sudo echo lirc_rpi gpio_in_pin=20 gpio_out_pin=16 >> /etc/modules
@@ -48,7 +98,7 @@ sudo systemctl enable lircd.service && sudo systemctl start lircd.service
 sudo systemctl status lircd.service
 ```
 
-### Recording codes
+## Recording codes
 Test receiver
 ```sh
 sudo systemctl stop lircd.service
@@ -152,6 +202,3 @@ Bellow are all available variables
 ### MQTT topics
 When button is pressed you will receive message in format
 `MQTT_PREFIX/REMOTE_NAME/KEY_NAME` with payload `short` / `long` ie. `lirc/pioneer/KEY_POWER`
-
-
-
