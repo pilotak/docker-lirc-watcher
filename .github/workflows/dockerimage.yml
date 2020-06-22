@@ -24,6 +24,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Prepare
+        id: prepare
         run: |
           HEAD_TAG=$(git tag --points-at HEAD)
           PLATFORMS=linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64
