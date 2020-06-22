@@ -4,13 +4,13 @@ Docker container that listens to LIRC daemon (running on the host) and sends rec
 
 **LIRC must be install on the host system**. Following examples have been tested below but should work on other platforms with adjustments too.
 
-## Debian Buster
+### Debian Buster
 Please follow steps in wiki [Install-on-Debian-Buster](https://github.com/pilotak/docker-lirc-watcher/wiki/Install-on-Debian-Buster)
 
-## Debian Stretch
+### Debian Stretch
 Please follow steps in wiki [Install-on-Debian-Stretch](https://github.com/pilotak/docker-lirc-watcher/wiki/Install-on-Debian-Stretch)
 
-## Ubuntu 18.04
+### Ubuntu 18.04
 Please follow steps in wiki [Install-on-Ubuntu-18.04](https://github.com/pilotak/docker-lirc-watcher/wiki/Install-on-Ubuntu-18.04)
 
 ## Recording codes
