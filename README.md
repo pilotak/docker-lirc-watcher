@@ -2,101 +2,16 @@
 
 Docker container that listens to LIRC daemon (running on the host) and sends received codes over MQTT with added benefit of short and long putton press.
 
-LIRC must be install on the host system. Following example is for Raspberry Pi 4 but should work on other platforms with adjustments too.
+**LIRC must be install on the host system**. Following examples have been tested below but should work on other platforms with adjustments too.
 
-## Install on Debian Buster
-LIRC on Buster have to be patched in order to work, so the installation is more complex.
+## Debian Buster
+Please follow steps in wiki [Install-on-Debian-Buster](./wiki/Install-on-Debian-Buster)
 
-If you already tried to install `lirc`, remove it first
-```sh
-sudo apt remove lirc liblirc0 liblirc-client0
-```
+## Debian Stretch
+Please follow steps in wiki [Install-on-Debian-Stretch](./wiki/Install-on-Debian-Stretch)
 
-Install patched LIRC
-```sh
-sudo su -c "grep '^deb ' /etc/apt/sources.list | sed 's/^deb/deb-src/g' > /etc/apt/sources.list.d/deb-src.list"
-sudo apt update
-sudo apt install -y devscripts dh-exec doxygen expect libasound2-dev libftdi1-dev libsystemd-dev libudev-dev libusb-1.0-0-dev libusb-dev man2html-base portaudio19-dev socat xsltproc python3-yaml dh-python libx11-dev python3-dev python3-setuptools
-mkdir build
-cd build
-apt source lirc
-wget https://raw.githubusercontent.com/neuralassembly/raspi/master/lirc-gpio-ir-0.10.patch
-patch -p0 -i lirc-gpio-ir-0.10.patch
-cd lirc-0.10.1
-debuild -uc -us -b
-cd ..
-sudo apt install -y --allow-downgrades ./liblirc0_0.10.1-5.2_armhf.deb ./liblircclient0_0.10.1-5.2_armhf.deb ./lirc_0.10.1-5.2_armhf.deb
-```
-
-The last command will fail, but it will create important files
-```sh
-sudo cp /etc/lirc/lirc_options.conf.dist /etc/lirc/lirc_options.conf
-sudo cp /etc/lirc/lircd.conf.dist /etc/lirc/lircd.conf
-```
-
-Alter following file
-```sh
-sudo nano /etc/lirc/lirc_options.conf
-```
-```
-driver = default
-device = /dev/lirc0
-```
-
-
-Specify pin you have a IR receiver connected to
-```sh
-sudo echo dtoverlay=gpio-ir,gpio_pin=17 >> /boot/config.txt
-```
-
-Reboot to apply changes
-```sh
-sudo reboot
-```
-
-
-## Install on Debian Stretch
-```sh
-sudo apt install lirc
-```
-
-Enable LIRC & specify pins
-```sh
-# sudo echo "lirc_dev" >> /etc/modules
-# sudo echo lirc_rpi gpio_in_pin=20 gpio_out_pin=16 >> /etc/modules
-sudo echo dtoverlay=gpio-ir,gpio_pin=20,gpio_pull=up >> /boot/config.txt
-```
-
-Find and alter following lines in `/etc/lirc/lirc_options.conf`
-```ApacheConf
-driver = default
-device = /dev/lirc0
-```
-
-Paste following code into file `/etc/lirc/hardware.conf`
-```ApacheConf
-########################################################
-LIRCD_ARGS="--uinput --listen"
-LOAD_MODULES=true
-DRIVER="default"
-DEVICE="/dev/lirc0"
-MODULES="lirc_rpi"
-
-LIRCD_CONF=""
-LIRCMD_CONF=""
-########################################################
-```
-
-Reboot to apply changes
-```sh
-sudo reboot
-```
-
-### Enable LIRC service
-```sh
-sudo systemctl enable lircd.service && sudo systemctl start lircd.service
-sudo systemctl status lircd.service
-```
+## Ubuntu 18.04
+Please follow steps in wiki [Install-on-Ubuntu-18.04](./wiki/Install-on-Ubuntu-18.04)
 
 ## Recording codes
 Test receiver
@@ -169,7 +84,7 @@ irw
 ## Docker-compose
 Now just start the docker container, alter the config to your needs and you ready to rock.
 ```yaml
-version: "3.6"
+version: "3"
 services:
   lirc:
     container_name: lirc
@@ -189,7 +104,7 @@ Bellow are all available variables
 | Variable | Description | Default value |
 | --- | --- | :---:|
 | `LONG_PRESS` | How many messages is received to be considered as long press | 12 |
-| `READ_TIMEOUT` | How long to wait to process new data *in s* | 0.2 | 
+| `READ_TIMEOUT` | How long to wait to process new data *seconds* | 0.2 | 
 | `PAYLOAD_LONG_PRESS` | Payload on long press | "long" | 
 | `PAYLOAD_SHORT_CLICK` | Payload on short press | "short" | 
 | `MQTT_BROKER` | Broker address | localhost | 
