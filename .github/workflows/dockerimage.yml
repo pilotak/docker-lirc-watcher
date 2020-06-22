@@ -26,15 +26,16 @@ jobs:
       - name: Prepare
         run: |
           HEAD_TAG=$(git tag --points-at HEAD)"
+          PLATFORMS=linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64
+          VERSION=latest
 
           if [[ $HEAD_TAG =~ ^v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-            echo "::set-output name=version::${HEAD_TAG//v}"
-          else
-            echo "::set-output name=version::latest"
+            VERSION=${HEAD_TAG//v}"
           fi
 
+          echo ::set-output name=version::${VERSION}
           echo ::set-output name=docker_image::${GITHUB_REPOSITORY//docker-}
-          echo ::set-output name=targets::linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64
+          echo ::set-output name=platforms::${PLATFORMS}
 
       - name: Build on pull request
         if: success() && github.event_name == 'pull_request'
@@ -61,7 +62,7 @@ jobs:
         if: success() && github.event_name != 'pull_request'
         run: |
           docker buildx build \
-            --platform ${{ steps.prepare.outputs.targets }} \
+            --platform ${{ steps.prepare.outputs.platforms }} \
             --tag ${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }} \
             --file ./Dockerfile \
             --push .
