@@ -28,9 +28,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Prepare
+      - name: Prepare version tag
         run: |
           echo "::set-env name=HEAD_TAG::$(git tag --points-at HEAD)"
+
+      - name: Set tags
+        run: |
           echo "::set-env name=TAG_VERSION::${HEAD_TAG//v}"
           echo "::set-env name=DOCKER_IMAGE::${GITHUB_REPOSITORY//docker-}"
 
