@@ -60,6 +60,7 @@ jobs:
         run: |
           docker buildx build \
             --platform ${DOCKER_TARGET_PLATFORM} \
-            --tag ${DOCKER_IMAGE}:${TAG_VERSION},${DOCKER_IMAGE}:latest \
+            --tag ${DOCKER_IMAGE}:${TAG_VERSION} \
+            --tag ${DOCKER_IMAGE}:latest \
             --file ./Dockerfile \
             --push .
