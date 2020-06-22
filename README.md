@@ -1,5 +1,5 @@
 # LIRC watcher
-![Docker Build](https://github.com/pilotak/docker-lirc-watcher/workflows/docker%20build/badge.svg) ![Docker Pulls](https://img.shields.io/docker/pulls/pilotak/lirc-watcher?color=orange) ![Docker Size](https://img.shields.io/docker/image-size/pilotak/lirc-watcher)
+![Docker Build](https://github.com/pilotak/docker-lirc-watcher/workflows/docker%20build/badge.svg) ![Docker Pulls](https://img.shields.io/docker/pulls/pilotak/lirc-watcher) ![Docker Size](https://img.shields.io/docker/image-size/pilotak/lirc-watcher?color=orange)
 
 Docker container that listens to LIRC daemon (running on the host) and sends received codes over MQTT with added benefit of short and long putton press.
 
