@@ -19,11 +19,6 @@ jobs:
   build:
     if: "!contains(github.event.commits[0].message, '[skip ci]')"
     runs-on: ubuntu-latest
-    env:
-      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      DOCKER_TARGET_PLATFORM: linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -34,33 +29,43 @@ jobs:
 
       - name: Set tags
         run: |
-          echo "::set-env name=TAG_VERSION::${HEAD_TAG//v}"
+          if [[ $HEAD_TAG =~ ^v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+            echo "::set-env name=TAG_VERSION::latest"
+          else
+            echo "::set-env name=TAG_VERSION::${HEAD_TAG//v}"
+          fi
+
           echo "::set-env name=DOCKER_IMAGE::${GITHUB_REPOSITORY//docker-}"
 
-      - name: Build on push
-        if: success() && env.TAG_VERSION == ''
+      - name: Build on pull request
+        if: success() && github.event_name == 'pull_request'
         run: |
           docker build .
 
       - name: Set up Docker Buildx
-        if: env.TAG_VERSION != ''
-        uses: crazy-max/ghaction-docker-buildx@v2
+        if: success() && github.event_name != 'pull_request'
+        uses: crazy-max/ghaction-docker-buildx@v3
         with:
           buildx-version: latest
           skip-cache: false
           qemu-version: latest
 
       - name: Docker Login
-        if: success() && env.TAG_VERSION != ''
+        if: success() && github.event_name != 'pull_request'
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
           echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin
 
       - name: Build on release & Push
-        if: success() && env.TAG_VERSION != ''
+        if: success() && github.event_name != 'pull_request'
+        env:
+          DOCKER_TARGET_PLATFORM: linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64
         run: |
           docker buildx build \
             --platform ${DOCKER_TARGET_PLATFORM} \
             --tag ${DOCKER_IMAGE}:${TAG_VERSION} \
-            --tag ${DOCKER_IMAGE}:latest \
             --file ./Dockerfile \
             --push .
+      
