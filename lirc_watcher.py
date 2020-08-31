@@ -73,7 +73,7 @@ def send_code(priority_data=None):
         topic = "%s/%s/%s" % (MQTT_PREFIX, remote, key_name)
         print("Sending message: '%s' to topic: '%s'" %
               (payload, topic))
-        mqtt.publish(topic, payload)
+        mqtt.publish(topic, payload=payload, qos=MQTT_QOS)
 
         if priority_data is None:
             prev_data = None
