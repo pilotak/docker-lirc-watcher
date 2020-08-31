@@ -30,10 +30,13 @@ print("LIRC watcher started")
 
 
 def on_mqtt_connect(mqtt, userdata, flags, rc):
-    print('MQTT connected')
+    if rc == 0:
+        print('MQTT connected')
 
-    mqtt.publish(MQTT_STATUS_TOPIC, payload=MQTT_PAYLOAD_ONLINE,
-                 qos=MQTT_QOS, retain=True)
+        mqtt.publish(MQTT_STATUS_TOPIC, payload=MQTT_PAYLOAD_ONLINE,
+                     qos=MQTT_QOS, retain=True)
+    else:
+        print('MQTT connect failed:', rc)
 
 
 prev_data = None
