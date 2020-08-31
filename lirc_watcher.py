@@ -17,9 +17,39 @@ PAYLOAD_SHORT_CLICK = os.getenv('PAYLOAD_SHORT_CLICK', 'short')
 MQTT_BROKER = os.getenv('MQTT_BROKER', 'localhost')
 MQTT_USER = os.getenv('MQTT_USER', None)
 MQTT_PASSWORD = os.getenv('MQTT_PASSWORD', None)
+MQTT_QOS = os.getenv('MQTT_QOS', 1)
 MQTT_PORT = os.getenv('MQTT_PORT', 1883)
 MQTT_ID = os.getenv('MQTT_ID', 'lirc-watcher')
 MQTT_PREFIX = os.getenv('MQTT_PREFIX', 'lirc')
+
+MQTT_STATUS_TOPIC = '%s/alive' % MQTT_PREFIX
+MQTT_PAYLOAD_ONLINE = '1'
+MQTT_PAYLOAD_OFFLINE = '0'
+
+print("LIRC watcher started")
+
+
+def on_mqtt_connect(mqtt, userdata, flags, rc):
+    print('MQTT connected')
+
+    mqtt.publish(MQTT_STATUS_TOPIC, payload=MQTT_PAYLOAD_ONLINE,
+                 qos=MQTT_QOS, retain=True)
+
+
+prev_data = None
+t = None
+
+mqtt = paho.Client(MQTT_ID)
+mqtt.on_connect = on_mqtt_connect
+mqtt.will_set(MQTT_STATUS_TOPIC, payload=MQTT_PAYLOAD_OFFLINE,
+              qos=MQTT_QOS, retain=True)
+mqtt.username_pw_set(MQTT_USER, MQTT_PASSWORD)
+mqtt.connect(MQTT_BROKER, MQTT_PORT)
+mqtt.loop_start()
+
+sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+sock.connect("/var/run/lirc/lircd")
+fcntl.fcntl(sock, fcntl.F_SETFL, os.O_NONBLOCK)
 
 
 def send_code(priority_data=None):
@@ -45,20 +75,6 @@ def send_code(priority_data=None):
         if priority_data is None:
             prev_data = None
 
-
-print("LIRC watcher started")
-
-prev_data = None
-t = None
-
-mqtt = paho.Client(MQTT_ID)
-mqtt.username_pw_set(MQTT_USER, MQTT_PASSWORD)
-mqtt.connect(MQTT_BROKER, MQTT_PORT)
-mqtt.loop_start()
-
-sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-sock.connect("/var/run/lirc/lircd")
-fcntl.fcntl(sock, fcntl.F_SETFL, os.O_NONBLOCK)
 
 try:
     while True:

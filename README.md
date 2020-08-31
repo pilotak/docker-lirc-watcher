@@ -114,6 +114,7 @@ Bellow are all available variables
 | `MQTT_PORT` | MQTT broker port | 1883 | 
 | `MQTT_ID` | MQTT client id | "lirc-watcher" | 
 | `MQTT_PREFIX` | MQTT topic prefix | "lirc" |
+| `MQTT_QOS` | MQTT QOS | 1 |
 
 ### MQTT topics
 When button is pressed you will receive message in format
