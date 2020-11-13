@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import socket
 import os
 import paho.mqtt.client as paho
 from threading import Timer
@@ -115,6 +114,9 @@ try:
 
                 t = Timer(READ_TIMEOUT, send_code)
                 t.start()
+
+        time.sleep(0.01)
+
 
 except KeyboardInterrupt:
     mqtt.disconnect()
