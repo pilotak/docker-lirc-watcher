@@ -7,7 +7,7 @@ import sys
 import socket
 import fcntl
 import errno
-import time
+from time import sleep
 
 LONG_PRESS = os.getenv('LONG_PRESS', 12)
 READ_TIMEOUT = os.getenv('READ_TIMEOUT', 0.2)
@@ -91,9 +91,15 @@ try:
             err = e.args[0]
 
             """
-            Check for "real" error, exclude empty data
+            Check for "real" error
             """
-            if err != errno.EAGAIN or err != errno.EWOULDBLOCK:
+            if err == errno.EAGAIN or err == errno.EWOULDBLOCK:
+                sleep(0.01)
+                continue
+            else:
+                print(e)
+                mqtt.disconnect()
+                mqtt.loop_stop()
                 sys.exit(1)
         else:
             if new_data:
@@ -114,8 +120,6 @@ try:
 
                 t = Timer(READ_TIMEOUT, send_code)
                 t.start()
-
-        time.sleep(0.01)
 
 
 except KeyboardInterrupt:
