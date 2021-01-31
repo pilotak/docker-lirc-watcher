@@ -46,6 +46,7 @@ jobs:
         with:
           push: true
           tags: ${{ steps.prepare.outputs.image_tags }}
+          platforms: linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64
 
       - name: Create Release
         uses: actions/create-release@v1
@@ -57,4 +58,3 @@ jobs:
           body_path: CHANGELOG.md
           draft: false
           prerelease: false
-          platforms: linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64
