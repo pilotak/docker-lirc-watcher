@@ -39,7 +39,7 @@ def on_mqtt_connect(mqtt, userdata, flags, rc):
 
 
 prev_data = None
-t = None
+timer = None
 
 mqtt = paho.Client(MQTT_ID)
 mqtt.on_connect = on_mqtt_connect
@@ -55,7 +55,11 @@ fcntl.fcntl(sock, fcntl.F_SETFL, os.O_NONBLOCK)
 
 
 def send_code(priority_data=None):
-    global prev_data, mqtt
+    global prev_data, mqtt, timer
+
+    if timer is not None and timer.is_alive():
+        timer.cancel()
+        timer = None
 
     if priority_data is not None or prev_data is not None:
         to_send = priority_data if priority_data is not None else prev_data
@@ -104,7 +108,7 @@ try:
         else:
             if new_data:
                 new_data = new_data.decode("utf-8")
-                # print("new_data: ", new_data)
+                print("new_data: ", new_data)
                 counter_str = new_data.split()
 
                 """
@@ -115,11 +119,11 @@ try:
 
                 prev_data = new_data
 
-                if t is not None and t.is_alive():
-                    t.cancel()
+                if timer is not None and timer.is_alive():
+                    timer.cancel()
 
-                t = Timer(READ_TIMEOUT, send_code)
-                t.start()
+                timer = Timer(READ_TIMEOUT, send_code)
+                timer.start()
 
 
 except KeyboardInterrupt:
