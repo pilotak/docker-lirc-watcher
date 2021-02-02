@@ -68,6 +68,7 @@ sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 sock.connect("/var/run/lirc/lircd")
 fcntl.fcntl(sock, fcntl.F_SETFL, os.O_NONBLOCK)
 
+
 def send_code(priority_data=None):
     global prev_data, mqtt, timer
 
