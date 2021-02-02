@@ -1,7 +1,7 @@
 # LIRC watcher
 ![Docker Build](https://github.com/pilotak/docker-lirc-watcher/workflows/docker%20build/badge.svg) ![Docker Pulls](https://img.shields.io/docker/pulls/pilotak/lirc-watcher) ![Docker Size](https://img.shields.io/docker/image-size/pilotak/lirc-watcher?color=orange)
 
-Docker container that listens to LIRC daemon (running on the host) and sends received codes over MQTT with added benefit of short and long putton press.
+Docker container that listens to LIRC daemon (running on the host) and sends received codes over MQTT with added benefit of short and long putton press. It can also send IR remote keys through lirc by publishing to MQTT topics.
 
 **LIRC must be install on the host system**. Following examples have been tested below but should work on other platforms with adjustments too.
 
@@ -116,6 +116,9 @@ Bellow are all available variables
 | `MQTT_PREFIX` | MQTT topic prefix | "lirc" |
 | `MQTT_QOS` | MQTT QOS | 1 |
 
-### MQTT topics
+### MQTT topics for receiving
 When button is pressed you will receive message in format
 `MQTT_PREFIX/REMOTE_NAME/KEY_NAME` with payload `short` / `long` ie. `lirc/pioneer/KEY_POWER`
+
+### MQTT topics for sending
+To send a remote key press, publish to `MQTT_PREFIX/send/REMOTE_NAME/KEY_NAME` with the payload being the number of repeats ie. `lirc/send/pioneer/KEY_POWER` If the payload is empty, repeats will default to 1.
