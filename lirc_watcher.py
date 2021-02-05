@@ -21,6 +21,7 @@ MQTT_PORT = os.getenv('MQTT_PORT', 1883)
 MQTT_ID = os.getenv('MQTT_ID', 'lirc-watcher')
 MQTT_PREFIX = os.getenv('MQTT_PREFIX', 'lirc')
 
+MQTT_SEND_TOPIC = '%s/send/#' % MQTT_PREFIX
 MQTT_STATUS_TOPIC = '%s/alive' % MQTT_PREFIX
 MQTT_PAYLOAD_ONLINE = '1'
 MQTT_PAYLOAD_OFFLINE = '0'
@@ -34,15 +35,29 @@ def on_mqtt_connect(mqtt, userdata, flags, rc):
 
         mqtt.publish(MQTT_STATUS_TOPIC, payload=MQTT_PAYLOAD_ONLINE,
                      qos=MQTT_QOS, retain=True)
+        mqtt.subscribe(MQTT_SEND_TOPIC)
     else:
         print('MQTT connect failed:', rc)
 
+def on_mqtt_message(client, userdata, msg):
+    try:
+        (remote, key) = str(msg.topic).split("/")[-2:]
+        try:
+            repeat = int(msg.payload)
+        except:
+            repeat = 1
+        command = "SEND_ONCE %s %s %d\n" % (remote, key, repeat)
+        print(command)
+        sock.sendall(command.encode("utf-8"))
+    except:
+        print(str(msg.topic))
 
 prev_data = None
 timer = None
 
 mqtt = paho.Client(MQTT_ID)
 mqtt.on_connect = on_mqtt_connect
+mqtt.on_message = on_mqtt_message
 mqtt.will_set(MQTT_STATUS_TOPIC, payload=MQTT_PAYLOAD_OFFLINE,
               qos=MQTT_QOS, retain=True)
 mqtt.username_pw_set(MQTT_USER, MQTT_PASSWORD)
@@ -111,19 +126,21 @@ try:
                 print("new_data: ", new_data)
                 counter_str = new_data.split()
 
-                """
-                If we received new_data and prev_data was not sent
-                """
-                if prev_data is not None and int(counter_str[1], 16) == 0:
-                    send_code(prev_data)
+                #ignore the status return from lirc sends
+                if counter_str[0] != "BEGIN":
+                    """
+                    If we received new_data and prev_data was not sent
+                    """
+                    if prev_data is not None and int(counter_str[1], 16) == 0:
+                        send_code(prev_data)
 
-                prev_data = new_data
+                    prev_data = new_data
 
-                if timer is not None and timer.is_alive():
-                    timer.cancel()
+                    if timer is not None and timer.is_alive():
+                        timer.cancel()
 
-                timer = Timer(READ_TIMEOUT, send_code)
-                timer.start()
+                    timer = Timer(READ_TIMEOUT, send_code)
+                    timer.start()
 
 
 except KeyboardInterrupt:
